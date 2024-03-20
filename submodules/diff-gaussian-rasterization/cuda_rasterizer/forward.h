@@ -45,7 +45,8 @@ namespace FORWARD
 		float4* conic_opacity,
 		const dim3 grid,
 		uint32_t* tiles_touched,
-		bool prefiltered);
+		bool prefiltered,
+		int num_channels); //
 
 	// Main rasterization method.
 	void render(
@@ -55,13 +56,12 @@ namespace FORWARD
 		int W, int H,
 		const float2* points_xy_image,
 		const float* features,
-		const float* semantic_feature, 
 		const float4* conic_opacity,
 		float* final_T,
 		uint32_t* n_contrib,
 		const float* bg_color,
 		float* out_color,
-		float* out_feature_map); 
+		int num_channels); //
 }
 
 
