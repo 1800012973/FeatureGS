@@ -218,7 +218,7 @@ int CudaRasterizer::Rasterizer::forward(
 	float* out_color,
 	int* radii,
 	bool debug,
-	int num_channels)
+	const int num_channels)
 {
 	const float focal_y = height / (2.0f * tan_fovy);
 	const float focal_x = width / (2.0f * tan_fovx);
@@ -370,7 +370,7 @@ void CudaRasterizer::Rasterizer::backward(
 	float* dL_dscale,
 	float* dL_drot,
 	bool debug,
-	int num_channels)
+	const int num_channels)
 {
 	GeometryState geomState = GeometryState::fromChunk(geom_buffer, P);
 	BinningState binningState = BinningState::fromChunk(binning_buffer, R);

@@ -51,7 +51,7 @@ namespace CudaRasterizer
 			float* out_color,
 			int* radii = nullptr,
 			bool debug = false,
-			int num_channels); //
+			const int num_channels=3); //
 
 		static void backward(
 			const int P, int D, int M, int R,
@@ -83,7 +83,7 @@ namespace CudaRasterizer
 			float* dL_dscale,
 			float* dL_drot,
 			bool debug,
-			int num_channels); //
+			const int num_channels); //
 	};
 };
 

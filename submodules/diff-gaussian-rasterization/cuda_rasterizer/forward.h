@@ -46,7 +46,7 @@ namespace FORWARD
 		const dim3 grid,
 		uint32_t* tiles_touched,
 		bool prefiltered,
-		int num_channels); //
+		const int num_channels); //
 
 	// Main rasterization method.
 	void render(
@@ -61,7 +61,7 @@ namespace FORWARD
 		uint32_t* n_contrib,
 		const float* bg_color,
 		float* out_color,
-		int num_channels); //
+		const int num_channels); //
 }
 
 
