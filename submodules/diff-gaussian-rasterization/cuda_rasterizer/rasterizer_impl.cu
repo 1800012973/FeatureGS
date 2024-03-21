@@ -217,8 +217,7 @@ int CudaRasterizer::Rasterizer::forward(
 	const bool prefiltered,
 	float* out_color,
 	int* radii,
-	bool debug,
-	const int num_channels)
+	bool debug)
 {
 	const float focal_y = height / (2.0f * tan_fovy);
 	const float focal_x = width / (2.0f * tan_fovx);
@@ -270,8 +269,7 @@ int CudaRasterizer::Rasterizer::forward(
 		geomState.conic_opacity,
 		tile_grid,
 		geomState.tiles_touched,
-		prefiltered,
-		num_channels //
+		prefiltered
 	), debug)
 
 	// Compute prefix sum over full list of touched tile counts by Gaussians
@@ -332,8 +330,7 @@ int CudaRasterizer::Rasterizer::forward(
 		imgState.accum_alpha,
 		imgState.n_contrib,
 		background,
-		out_color,
-		num_channels), debug) //
+		out_color), debug)
 
 	return num_rendered;
 }
@@ -369,8 +366,7 @@ void CudaRasterizer::Rasterizer::backward(
 	float* dL_dsh,
 	float* dL_dscale,
 	float* dL_drot,
-	bool debug,
-	const int num_channels)
+	bool debug)
 {
 	GeometryState geomState = GeometryState::fromChunk(geom_buffer, P);
 	BinningState binningState = BinningState::fromChunk(binning_buffer, R);
@@ -407,8 +403,7 @@ void CudaRasterizer::Rasterizer::backward(
 		(float3*)dL_dmean2D,
 		(float4*)dL_dconic,
 		dL_dopacity,
-		dL_dcolor,
-		num_channels), debug) //
+		dL_dcolor), debug)
 
 	// Take care of the rest of preprocessing. Was the precomputed covariance
 	// given to us or a scales/rot pair? If precomputed, pass that. If not,
@@ -435,6 +430,5 @@ void CudaRasterizer::Rasterizer::backward(
 		dL_dcov3D,
 		dL_dsh,
 		(glm::vec3*)dL_dscale,
-		(glm::vec4*)dL_drot,
-		num_channels), debug) //
+		(glm::vec4*)dL_drot), debug)
 }

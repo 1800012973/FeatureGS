@@ -177,8 +177,7 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	float4* conic_opacity,
 	const dim3 grid,
 	uint32_t* tiles_touched,
-	bool prefiltered,
-	const int num_channels) //
+	bool prefiltered)
 {
 	auto idx = cg::this_grid().thread_rank();
 	if (idx >= P)
@@ -241,14 +240,10 @@ __global__ void preprocessCUDA(int P, int D, int M,
 	// spherical harmonics coefficients to RGB color.
 	if (colors_precomp == nullptr)
 	{
-
 		glm::vec3 result = computeColorFromSH(idx, D, M, (glm::vec3*)orig_points, *cam_pos, shs, clamped);
- 		rgb[idx * C + 0] = result.x;
- 		rgb[idx * C + 1] = result.y;
- 		rgb[idx * C + 2] = result.z;
-        //rgb[idx * num_channels + 0] = result.x;
-        //rgb[idx * num_channels + 1] = result.y;
-        //rgb[idx * num_channels + 2] = result.z;
+		rgb[idx * C + 0] = result.x;
+		rgb[idx * C + 1] = result.y;
+		rgb[idx * C + 2] = result.z;
 	}
 
 	// Store some useful helper data for the next steps.
@@ -275,8 +270,7 @@ renderCUDA(
 	float* __restrict__ final_T,
 	uint32_t* __restrict__ n_contrib,
 	const float* __restrict__ bg_color,
-	float* __restrict__ out_color,
-	const int num_channels) //
+	float* __restrict__ out_color)
 {
 	// Identify current tile and associated min/max pixel range.
 	auto block = cg::this_thread_block();
@@ -306,8 +300,7 @@ renderCUDA(
 	float T = 1.0f;
 	uint32_t contributor = 0;
 	uint32_t last_contributor = 0;
-	//float C[CHANNELS] = { 0 };
-	float * C = new float[num_channels]{0};
+	float C[CHANNELS] = { 0 };
 
 	// Iterate over batches until all done or range is complete
 	for (int i = 0; i < rounds; i++, toDo -= BLOCK_SIZE)
@@ -358,10 +351,8 @@ renderCUDA(
 			}
 
 			// Eq. (3) from 3D Gaussian splatting paper.
-			//for (int ch = 0; ch < CHANNELS; ch++)
-				//C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
-			for (int ch = 0; ch < num_channels; ch++)
-				C[ch] += features[collected_id[j] * num_channels + ch] * alpha * T;
+			for (int ch = 0; ch < CHANNELS; ch++)
+				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
 
 			T = test_T;
 
@@ -377,12 +368,9 @@ renderCUDA(
 	{
 		final_T[pix_id] = T;
 		n_contrib[pix_id] = last_contributor;
-		//for (int ch = 0; ch < CHANNELS; ch++)
-		for (int ch = 0; ch < num_channels; ch++)
+		for (int ch = 0; ch < CHANNELS; ch++)
 			out_color[ch * H * W + pix_id] = C[ch] + T * bg_color[ch];
 	}
-
-	delete C;
 }
 
 void FORWARD::render(
@@ -396,10 +384,8 @@ void FORWARD::render(
 	float* final_T,
 	uint32_t* n_contrib,
 	const float* bg_color,
-	float* out_color,
-	const int num_channels)
+	float* out_color)
 {
-	//renderCUDA<NUM_CHANNELS> << <grid, block >> > (
 	renderCUDA<NUM_CHANNELS> << <grid, block >> > (
 		ranges,
 		point_list,
@@ -410,8 +396,7 @@ void FORWARD::render(
 		final_T,
 		n_contrib,
 		bg_color,
-		out_color,
-		num_channels);
+		out_color);
 }
 
 void FORWARD::preprocess(int P, int D, int M,
@@ -438,10 +423,8 @@ void FORWARD::preprocess(int P, int D, int M,
 	float4* conic_opacity,
 	const dim3 grid,
 	uint32_t* tiles_touched,
-	bool prefiltered,
-	const int num_channels)
+	bool prefiltered)
 {
-	//preprocessCUDA<NUM_CHANNELS> << <(P + 255) / 256, 256 >> > (
 	preprocessCUDA<NUM_CHANNELS> << <(P + 255) / 256, 256 >> > (
 		P, D, M,
 		means3D,
@@ -467,7 +450,6 @@ void FORWARD::preprocess(int P, int D, int M,
 		conic_opacity,
 		grid,
 		tiles_touched,
-		prefiltered,
-		num_channels
+		prefiltered
 		);
 }
