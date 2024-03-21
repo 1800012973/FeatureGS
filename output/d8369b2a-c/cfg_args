@@ -1,0 +1,1 @@
+Namespace(data_device='cuda', eval=False, images='images', model_path='./output/d8369b2a-c', resolution=-1, sh_degree=3, source_path='/scratch/makq/GSG/db/playroom', white_background=False)
